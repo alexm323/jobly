@@ -18,26 +18,26 @@ class Company {
 
   static async create({ handle, name, description, numEmployees, logoUrl }) {
     const duplicateCheck = await db.query(
-          `SELECT handle
+      `SELECT handle
            FROM companies
            WHERE handle = $1`,
-        [handle]);
+      [handle]);
 
     if (duplicateCheck.rows[0])
       throw new BadRequestError(`Duplicate company: ${handle}`);
 
     const result = await db.query(
-          `INSERT INTO companies
+      `INSERT INTO companies
            (handle, name, description, num_employees, logo_url)
            VALUES ($1, $2, $3, $4, $5)
            RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`,
-        [
-          handle,
-          name,
-          description,
-          numEmployees,
-          logoUrl,
-        ],
+      [
+        handle,
+        name,
+        description,
+        numEmployees,
+        logoUrl,
+      ],
     );
     const company = result.rows[0];
 
@@ -48,18 +48,45 @@ class Company {
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
-
-  static async findAll() {
+  /** 
+ * Filter method for getting a company with a specific name, minimum number of employees or a maximum number of employees
+ * we can add in a parameter to findAll that acceepts an object with the search terms as keys and the query params as values 
+ * then we can make some if statements to account for each kind of filter they can do 
+ */
+  // Add in an optional parameter for search filters that accepts an object of the 3 potential search filters
+  static async findAll(searchFilters = {}) {
     const companiesRes = await db.query(
-          `SELECT handle,
+      `SELECT handle,
                   name,
                   description,
                   num_employees AS "numEmployees",
                   logo_url AS "logoUrl"
            FROM companies
            ORDER BY name`);
+    // empty array to track the expressions we will be querying, will be the WHERE clause expressions
+    let filterQueries = []
+    // The values for the where clauses 
+    let queryValues = []
+    // deconstruct the searchFilters object so we can extract the values that we want to query
+    const { name, minEmployees, maxEmployees } = searchFilters;
+
+    // we have an automatic test case to adjust for, if the minEmployees queried is greater that that of the maxEmployees, then we throw an error
+    if (parseInt(minEmployees) > parseInt(maxEmployees)) {
+      throw new BadRequestError("Minimum employees cannot be less than maximum employees")
+    }
+    // add each type of filter to the arrays so we know what we need to add to our WHERE clause 
+    // if there is a minEmployees in the query string we will add it the the 
+    if (minEmployees !== undefined) {
+      queryValues.push(minEmployees);
+      sqlClause.push(`num_employees >= $${queryValues.length}`)
+    }
+    if (maxEmployees !== undefined) {
+      queryValues.push(minEmployees);
+      sqlClause.push(`num_employees >= $${queryValues.length}`)
+    }
     return companiesRes.rows;
   }
+
 
   /** Given a company handle, return data about company.
    *
@@ -71,14 +98,14 @@ class Company {
 
   static async get(handle) {
     const companyRes = await db.query(
-          `SELECT handle,
+      `SELECT handle,
                   name,
                   description,
                   num_employees AS "numEmployees",
                   logo_url AS "logoUrl"
            FROM companies
            WHERE handle = $1`,
-        [handle]);
+      [handle]);
 
     const company = companyRes.rows[0];
 
@@ -101,11 +128,11 @@ class Company {
 
   static async update(handle, data) {
     const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          numEmployees: "num_employees",
-          logoUrl: "logo_url",
-        });
+      data,
+      {
+        numEmployees: "num_employees",
+        logoUrl: "logo_url",
+      });
     const handleVarIdx = "$" + (values.length + 1);
 
     const querySql = `UPDATE companies 
@@ -131,11 +158,11 @@ class Company {
 
   static async remove(handle) {
     const result = await db.query(
-          `DELETE
+      `DELETE
            FROM companies
            WHERE handle = $1
            RETURNING handle`,
-        [handle]);
+      [handle]);
     const company = result.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
