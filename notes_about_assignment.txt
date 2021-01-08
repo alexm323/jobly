@@ -71,3 +71,23 @@ using a new matcher called expect assertions(num) that counts how many times a c
 
 I had some trouble with the last of the tests and I got really frustrated with the whole thing >_>
 
+now i have to implement it on the routes they are required which I believe are as follows:
+
+ADMIN ONLY:
+companies/ 
+{
+    creating
+    updating
+    deleting
+}
+users/
+{
+    creating users ADMIN
+    getting list of users ADMIN
+
+    THAT_USER/ADMIN
+    getting a single user details
+    updating
+    deleting
+
+}
