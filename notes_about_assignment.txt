@@ -80,6 +80,14 @@ companies/
     updating
     deleting
 }
+
+this was a pretty easy fix 
+added ensureAdmin to each of the routes that required login in the companies routes
+
+to update the tests 
+just had to use u3 token which I defined in the _testCommon and gave it admin privileges and replace every isntanct of u1Token in the companies.test.js file 
+
+
 users/
 {
     creating users ADMIN
