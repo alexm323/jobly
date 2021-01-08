@@ -55,14 +55,15 @@ class Company {
  */
   // Add in an optional parameter for search filters that accepts an object of the 3 potential search filters
   static async findAll(searchFilters = {}) {
-    const companiesRes = await db.query(
-      `SELECT handle,
+
+    // create a query variable so we can add a search filter to the end of it as needed, we remove the order by name since we will be adding to the end of the query string as filters are added
+    let query = `SELECT handle,
                   name,
                   description,
                   num_employees AS "numEmployees",
                   logo_url AS "logoUrl"
            FROM companies
-           ORDER BY name`);
+           `
     // empty array to track the expressions we will be querying, will be the WHERE clause expressions
     let filterQueries = []
     // The values for the where clauses 
@@ -75,15 +76,35 @@ class Company {
       throw new BadRequestError("Minimum employees cannot be less than maximum employees")
     }
     // add each type of filter to the arrays so we know what we need to add to our WHERE clause 
-    // if there is a minEmployees in the query string we will add it the the 
+    // if there is a minEmployees in the query string we will add it the the filterQueries array to make our sql later
     if (minEmployees !== undefined) {
       queryValues.push(minEmployees);
-      sqlClause.push(`num_employees >= $${queryValues.length}`)
+      // gets pushed in to our queryValue as  WHERE...... num_employees >= $1
+      filterQueries.push(`num_employees >= $${queryValues.length}`)
     }
+    // if the maxEmployees is given a value in the query string
     if (maxEmployees !== undefined) {
-      queryValues.push(minEmployees);
-      sqlClause.push(`num_employees >= $${queryValues.length}`)
+      // we want that number as a value pushed into our queryValues array 
+      queryValues.push(maxEmployees);
+      // our WHERE clause
+      filterQueries.push(`num_employees <= $${queryValues.length}`)
     }
+    if (name) {
+      // Using %name% here allows us to use sql to find patterns that match this name from our database 
+      queryValues.push(`%${name}%`)
+      // now we just add in the sql statement before we add it all together 
+      filterQueries.push(`name ILIKE $${queryValues.length}`)
+    }
+    // now with our if statements populating the filter query we can build it and we should end up with 0 -  3 variables ($1,$2,$3) depending on how many filters the user would like to apply 
+    // if we have at least 1 query active 
+    if (filterQueries.length > 0) {
+      query = query + ` WHERE ` + filterQueries.join(' AND ');
+
+    }
+    // order the query results by name of company before we return them, could also add in a param to order this in any way that we want 
+    query = query + " ORDER BY name";
+    const companiesRes = await db.query(query, queryValues)
+    // I THINK I WOULD BE SERVED WELL TO TRY TO GET THIS WORKING AS A STANDALONE HELPER FUNCTION CALLED SQLQUERYBUILDER OR SOMETHING, FOR NOW JUST FINISH BUILDING IT OUT  
     return companiesRes.rows;
   }
 

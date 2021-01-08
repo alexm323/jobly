@@ -1,0 +1,73 @@
+Step 1 :
+partialSQL Update helper function 
+
+Looked at the partial sql update function and it takes two parameters. 
+The point of the helper function is to make it possible to update the SQL according only to the fields you want to update 
+
+The way it does that is by taking the first parameter which is the data itself that is to be updated. This comes in the form of an object that has the names of the fields you would like to update. The second parameter makes sure that the column name is in sql format by checking if a column in the keys from the dataToUpdate Object exists , if it does then the format is correct, if it doesn't then we just use the column name we are mapping from the keys. It also keeps track of the index number for when we pass them into sql as $1, $2, etc. 
+
+we return: 
+the new columns array is combined as a string so we can use it in our SQL statement as the SET clause 
+
+the values, which are just an array of the values passed into the function as the dataToUpdate argument. 
+
+In practice: 
+This function is used in the update features in the models. We can see this in the company and user models in the update static methods
+
+in the update method specifically we pass in the data that we want and the function will return to us the proper format for our sql query. 
+The handleVarIdx and querySql are particularly interesting 
+
+In order to account for any number of the variable we want to update, with use of the spread operator it makes it possible to make sure we are getting the right company by handle and accounting for any of the values that it is accepting as an array of parameters by taking the length of the params array and adding 1 to put as the index of the handle. I never would have thought of that and it is pretty clever 
+
+
+Testing:
+As long as we get the right format back from the function, it should be easy enough to test for. And we can also test for not having any parameters which should throw an error. We can use the expect ... toThrow matcher
+
+Step 2: Adding filtering
+
+We want to add in a feature that allows us to get different results from the api if we include a specific querystring. we want the following functionality 
+
+name: filter a company by name, should be case insensitive 
+minEmployees: filter companies that have at least this number of employees 
+maxEmployees: filter companies that have at most this number of employees 
+
+note: Throw an error if the minEmployees param is greater than the maxEmployees param. Respond with a 400 error and an appropriate message
+
+it is going to be a few changes to the route and the model as well
+the route is where i get the actual query string so I can expect an object from the query string and based on what values are positive if i am checking for 3 like name,min, and max then I will be able to grab that as well as the value from that key which should be there with an equal sign like /companies?name=facebook. 
+
+the actual filtering should be done on the model. I can make a generic filter function that accepts an object that has the keys of name,min,max. I can check for truthiness in the values and then alter a SQL query accordingly 
+
+added the basic condition that minimum employees should be less than maximum number of employees and added in a test for it.
+
+Finished the filtering query for the sql and added in tests to check for each condition as well as with a combination of filters. everything is passing so moving on to the next section 
+
+
+Step 3: 
+Requirements 
+1. Do not change the code to the routes 
+2. Do not SELECT information about the user on every request
+3. Authentication credentials provided by the user can contain the information the user needs to provide proof of meeting the requirements 
+
+First task: Make sure that only admin users can create a company if they are flagged in the database as admins 
+
+First I am checking how to create a user to make sure that a regular user can not create companies without admin priveliges
+
+TOOK ME WAY TOO LONG TO FIGURE OUT HOW AUTHENTICATE JWT WAS ACTUALLY WORKING , it was being used in the app , app.use was initializing it before every fucntion automatically, makes so much more sense now 
+
+so up to this point I had only seen where we send the token as part of the JSON so I was confused because here they sent it as part of the header. so we grab the token out of the header and not the json body 
+
+so now that i actually understand how the login is working I can tackle the actual problem which is ensuring that only an admin can have certain functionality 
+
+to do that we need to write an ensureAdmin functionality 
+
+first we need to access the data from the payload which we can see on jwt.io but we can see the payload data if we access res.local.user and we can access the isAdmin property from here 
+
+created two new middleware functions to assist with the privileges on certain routes, ensureAdmin, and ensureUserOrAdmin as was recommended by a TA because I had an initial ideal of an OR operator in the middleware not seeing the easier solution of just having a seperate middleware function that checks for both cases of being the right user or being an admin 
+
+time to write some tests for it 
+
+using a new matcher called expect assertions(num) that counts how many times a certain function is being run which is good for async code and middle ware. since if we are calling like 3 routes we want to make sure if ensureLoggedIn is supposed to run for each route that we are calling it each time 
+
+I had some trouble with the last of the tests and I got really frustrated with the whole thing >_>
+

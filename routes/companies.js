@@ -39,6 +39,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
   }
 });
 
+
 /** GET /  =>
  *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
  *
@@ -52,14 +53,19 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   try {
-    // const queryKeysArray = Object.keys(req.query)
+    // checking if the there is any filtering happening from the query string
+    const queryKeysArray = Object.keys(req.query)
+    // if there is no query values then we will just return a list of all of the companies
     if (queryKeysArray.length === 0) {
       const companies = await Company.findAll();
       return res.json({ companies });
+
     } else {
-      console.log(req.query)
+      // otherwise here we are going to be using our findAll filter which accepts an argument of the query string and based off of that our filter changes and our query changes with it 
+      // console.log(req.query)
       const filteredCompanies = await Company.findAll(req.query)
       // return res.send(queryKeysArray)
+      // return the response we get back
       return res.json({ filteredCompanies })
     }
 

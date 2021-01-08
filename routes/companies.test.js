@@ -109,10 +109,88 @@ describe("GET /companies", function () {
 });
 /************************************** GET /companies with filtering*/
 describe("GET /companies check that we can specify the type of filter", function () {
-  test("", async function () {
+  test("should throw an error if our min is greater than our max in the query string", async function () {
     const resp = await request(app).get("/companies?minEmployees=10&maxEmployees=5");
     expect(resp.statusCode).toBe(400)
   });
+  test("filter by name", async function () {
+    const resp = await request(app).get("/companies?name=2");
+    expect(resp.statusCode).toBe(200)
+    expect(resp.body).toEqual({
+      "filteredCompanies": [
+        {
+          "handle": "c2",
+          "name": "C2",
+          "description": "Desc2",
+          "numEmployees": 2,
+          "logoUrl": "http://c2.img"
+        }
+      ]
+    });
+  });
+  test("filter by min number of employees", async function () {
+    const resp = await request(app).get("/companies?minEmployees=2");
+    expect(resp.statusCode).toBe(200)
+    expect(resp.body).toEqual({
+      "filteredCompanies": [
+        {
+          "handle": "c2",
+          "name": "C2",
+          "description": "Desc2",
+          "numEmployees": 2,
+          "logoUrl": "http://c2.img"
+        },
+        {
+          "handle": "c3",
+          "name": "C3",
+          "description": "Desc3",
+          "numEmployees": 3,
+          "logoUrl": "http://c3.img"
+        }
+      ]
+    });
+  });
+  test("filter by max number of employees", async function () {
+    const resp = await request(app).get("/companies?maxEmployees=2");
+    expect(resp.statusCode).toBe(200)
+    expect(resp.body).toEqual({
+      "filteredCompanies": [
+        {
+          "handle": "c1",
+          "name": "C1",
+          "description": "Desc1",
+          "numEmployees": 1,
+          "logoUrl": "http://c1.img"
+        },
+        {
+          "handle": "c2",
+          "name": "C2",
+          "description": "Desc2",
+          "numEmployees": 2,
+          "logoUrl": "http://c2.img"
+        }
+
+      ]
+    });
+  });
+  test("filter by max number of employees AND name", async function () {
+    const resp = await request(app).get("/companies?maxEmployees=2&name=1");
+    expect(resp.statusCode).toBe(200)
+    expect(resp.body).toEqual({
+      "filteredCompanies": [
+        {
+          "handle": "c1",
+          "name": "C1",
+          "description": "Desc1",
+          "numEmployees": 1,
+          "logoUrl": "http://c1.img"
+        }
+
+      ]
+    });
+  });
+
+
 
 
 });
