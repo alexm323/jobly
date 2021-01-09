@@ -30,6 +30,8 @@ class Job {
                 companyHandle
             ]);
         const job = result.rows[0];
+        // console.log('checking the creation part of the testing should log the job below this line')
+        // console.log(job)
 
         return job;
     }
@@ -48,7 +50,6 @@ class Job {
 
         // create a query variable so we can add a search filter to the end of it as needed, we remove the order by name since we will be adding to the end of the query string as filters are added
         let query = `SELECT id,title,salary,equity,company_handle AS "companyHandle" FROM jobs`
-        console.log(query)
         // empty array to track the expressions we will be querying, will be the WHERE clause expressions
         let filterQueries = []
         // The values for the where clauses 
@@ -87,6 +88,60 @@ class Job {
         // I THINK I WOULD BE SERVED WELL TO TRY TO GET THIS WORKING AS A STANDALONE HELPER FUNCTION CALLED SQLQUERYBUILDER OR SOMETHING, FOR NOW JUST FINISH BUILDING IT OUT  
         return jobRes.rows;
     }
+    static async get(id) {
+        const jobRes = await db.query(
+            `SELECT id,
+                      title,
+                      salary,
+                      equity,
+                      company_handle AS "companyHandle"
+               FROM jobs
+               WHERE id = $1`,
+            [id]);
+
+        const job = jobRes.rows[0];
+
+        if (!job) throw new NotFoundError(`No job with id: ${id}`);
+
+        return job;
+    }
+
+
+    static async update(id, data) {
+        const { setCols, values } = sqlForPartialUpdate(
+            data,
+            {});
+        const idVarIdx = "$" + (values.length + 1);
+
+        const querySql = `UPDATE jobs 
+                          SET ${setCols} 
+                          WHERE id = ${idVarIdx} 
+                          RETURNING id, 
+                                    title, 
+                                    salary, 
+                                    equity,
+                                    company_handle AS "companyHandle"`;
+        const result = await db.query(querySql, [...values, id]);
+        const job = result.rows[0];
+
+        if (!job) throw new NotFoundError(`No job: ${id}`);
+
+        return job;
+    }
+
+    static async remove(id) {
+        const result = await db.query(
+            `DELETE
+               FROM jobs
+               WHERE id = $1
+               RETURNING title`,
+            [id]);
+        const job = result.rows[0];
+
+        if (!job) throw new NotFoundError(`No job with the id of: ${id}`);
+    }
+
+
 }
 
 

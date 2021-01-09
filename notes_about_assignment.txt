@@ -193,3 +193,59 @@ got two of the fitlers down but I am having trouble thinking of how to deal with
 GOT THE FILTERS WORKING. I will write the tests tomorrow. I am tired. 
 next up write the tests and add in the ensureAdmin middleware for it 
 
+tried it with ensure admin and it gave me unauthorized as expected 
+
+time to write some tests for the filter function and the route 
+
+I am having an issue with the creation of my jobs for testing where I am getting back an empty array when I use Job.findAll(). it is returning an empty array instead of an array with the job objects inside of them like I thought would be happening
+
+maybe monday I can have somebody explain it to me 
+  await Job.create({
+    title: "j1",
+    salary: 10000,
+    equity: 0,
+    companyHandle: 'c1'
+  });
+  await Job.create({
+    title: "j1a",
+    salary: 100000,
+    equity: 0.01,
+    companyHandle: 'c1'
+  });
+  await Job.create({
+    title: "j2",
+    salary: 20000,
+    equity: 0.02,
+    companyHandle: 'c2'
+  });
+  await Job.create({
+    title: "j3",
+    salary: 30000,
+    equity: 0.03,
+    companyHandle: 'c3'
+  });
+
+const queries = await db.query(`SELECT * FROM jobs;`)
+  console.log(queries)
+
+  when i do this it returns me jobs so I don't really understand why I am getting an empty array back 
+
+or maybe it is just my findAll function that is broken 
+
+PITFALLS TO AVOID, I FINALLY GOT IT WORKING BUT MY GOD I WAS DESCENDING INTO MADNESS TRYING TO FIGURE IT OUT AND I WAS IN THE WRONG DAMN FILE THE WHOLE FUCKING TIME 
+
+FUUUUUUCK
+
+
+ok got the find all tests working , a lot easier once you actually have your data in the right files it turns out -_-
+
+
+time to continue with the model and add in the update feature 
+
+have the update method in the model now I need to go back to make a schema
+
+
+ok added the schema and finally finished out the job functionality with some tests on the job model have some edge cases I need to deal with like when we try to delete a non existent company 
+
+need to update one of the routes on companies and need to test the jobs routes to make sure they are working 
+
