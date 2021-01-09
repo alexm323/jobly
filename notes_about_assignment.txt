@@ -99,3 +99,79 @@ users/
     deleting
 
 }
+
+Step 4:
+We are getting closer to the end 
+
+Need to add in a model for jobs that we are going to pattern match from the companies model 
+
+Create a model 
+Write tests for the model 
+add routes for the jobes 
+anyone can get the jobs but only admins have the ability to update/create/delete jobs 
+need to add in a json schema to validate the information 
+
+add in filtering 
+this would be a good time to create that filterQueryBuilder helper function
+
+need to go back to the /companies/handle to make it so that the job information appears for the jobs that are associated with that company 
+
+first thing to do is to look at the schema for the database table and probably right out the jsonschema for it 
+
+jobs have the following data 
+id
+title 
+salary
+equity
+company_handle which is referencing the companies table 
+
+the nice thing is there is already a ton of jobs seeded into the database 
+
+They are using NUMERIC field type for the equity section and typically that type is reserved for monetary amount and places where precision matters. The numeric field type can be given a scale and a precision value where you can indicate what numbers place to round to, tenths thousandths etc . PG will throw an error if the precision of a number is surpassed
+
+And apparently we get a string back when making a query of a Numeric column, the reason being that number precision is maxed at 32 bit. So the only way to get exact precision is to use a string to hold that data 
+
+
+Looking at the schemas that are already in , it looks like it is broken up in two for each kind of table in the database 
+ie one for creating a new company and one for updating a company 
+
+
+const companyNewSchema = require("../schemas/companyNew.json");
+const companyUpdateSchema = require("../schemas/companyUpdate.json");
+
+
+they have this in the companies file which is importing both of the types of schemas so i envision something similar 
+
+using this example to make a json schema 
+
+{
+    "id": 1,
+    "title": "Information Officer",
+    "salary": 200000,
+    "equity": 0,
+    "company_handle": "watson-davis"
+}
+
+got this from the seed data and am using it to construct my schema 
+
+made an initial schema now I want to try to make the Job Model 
+
+made a Job class and I am using a static function for create like in the companies 
+
+just to make sure I am creating a job correctly testing it out in psql first 
+
+jobly=# INSERT INTO jobs (title, salary, equity, company_handle )VALUES ('gamer', 1000, 0, 'mspace') RETURNING id, title
+, salary, company_handle AS "companyHandle";
+ id  | title | salary | companyHandle
+-----+-------+--------+---------------
+ 202 | gamer |   1000 | mspace
+(1 row)
+
+INSERT 0 1
+
+so it seems to work straight with the database so now let me make a quick route and try that 
+
+so got the basic create route to work but now I need to add validation and ensure admin before moving on from this route as well as writing more tests of course 
+
+check if it passes my validation check that I just added with the JSON schema
+
