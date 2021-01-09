@@ -38,7 +38,7 @@ const router = new express.Router();
 //         return next(err);
 //     }
 // });
-router.post("/", async function (req, res, next) {
+router.post("/", ensureAdmin, async function (req, res, next) {
     try {
         const validator = jsonschema.validate(req.body, jobNewSchema);
         if (!validator.valid) {
@@ -64,31 +64,31 @@ router.post("/", async function (req, res, next) {
  * Authorization required: none
  */
 
-// router.get("/", async function (req, res, next) {
-//     try {
-//         // checking if the there is any filtering happening from the query string
-//         const queryKeysArray = Object.keys(req.query)
-//         // if there is no query values then we will just return a list of all of the companies
-//         if (queryKeysArray.length === 0) {
-//             const companies = await Company.findAll();
-//             return res.json({ companies });
+router.get("/", async function (req, res, next) {
+    try {
+        // checking if the there is any filtering happening from the query string
+        const queryKeysArray = Object.keys(req.query)
+        // if there is no query values then we will just return a list of all of the companies
+        if (queryKeysArray.length === 0) {
+            const jobs = await Job.findAll();
+            return res.json({ jobs });
 
-//         } else {
-//             // otherwise here we are going to be using our findAll filter which accepts an argument of the query string and based off of that our filter changes and our query changes with it 
-//             // console.log(req.query)
-//             const filteredCompanies = await Company.findAll(req.query)
-//             // return res.send(queryKeysArray)
-//             // return the response we get back
-//             return res.json({ filteredCompanies })
-//         }
-
-
+        } else {
+            // otherwise here we are going to be using our findAll filter which accepts an argument of the query string and based off of that our filter changes and our query changes with it 
+            // console.log(req.query)
+            const filteredJobs = await Job.findAll(req.query)
+            // return res.send(queryKeysArray)
+            // return the response we get back
+            return res.json({ filteredJobs })
+        }
 
 
-//     } catch (err) {
-//         return next(err);
-//     }
-// });
+
+
+    } catch (err) {
+        return next(err);
+    }
+});
 
 // /** GET /[handle]  =>  { company }
 //  *
@@ -145,7 +145,6 @@ router.post("/", async function (req, res, next) {
 //     } catch (err) {
 //         return next(err);
 //     }
-// });
 
 
 module.exports = router;

@@ -175,3 +175,21 @@ so got the basic create route to work but now I need to add validation and ensur
 
 check if it passes my validation check that I just added with the JSON schema
 
+was having trouble with the company handle and the variable naming, i don't really understand why the convention goes all over the place in terms of the naming 
+
+ok got the json schema validated route now we need to add in authentication 
+
+added in the middleware and tried to create and it rejected which is good, thats what i want without an auth token
+
+so the route works with auth so now I can write some tests for this route 
+
+got the tests working for creating as an admin 
+
+need to make another model method for getting info 
+
+making the findAll function and route right now and I am working on the filters right away because I might as well take care of it now 
+got two of the fitlers down but I am having trouble thinking of how to deal with the has equity i want to evaluate the value for each one so i can filter if the equity value is greater than zero 
+
+GOT THE FILTERS WORKING. I will write the tests tomorrow. I am tired. 
+next up write the tests and add in the ensureAdmin middleware for it 
+
