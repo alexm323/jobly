@@ -136,6 +136,7 @@ describe("get", function () {
     let user = await User.get("u1");
     expect(user).toEqual({
       username: "u1",
+      applications: expect.any(Array),
       firstName: "U1F",
       lastName: "U1L",
       email: "u1@email.com",
@@ -181,6 +182,7 @@ describe("update", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
+
     });
     const found = await db.query("SELECT * FROM users WHERE username = 'u1'");
     expect(found.rows.length).toEqual(1);

@@ -261,3 +261,5 @@ Step 5: Job Applications
 
 1.Need to add a method the the User model to allow a user to apply or for an admin to apply on their behalf 
 2.Add a POST/users/:username/jobs/:id route that allows a user to apply for a job 
+
+added in apply method in the model , wrote tests for the method and updated the routes, now just need to fix and update the tests that broke 

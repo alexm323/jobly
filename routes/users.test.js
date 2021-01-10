@@ -41,7 +41,7 @@ describe("POST /users", function () {
         firstName: "First-new",
         lastName: "Last-newL",
         email: "new@email.com",
-        isAdmin: false,
+        isAdmin: false
       }, token: expect.any(String),
     });
   });
@@ -176,6 +176,7 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: false,
+        applications: expect.any(Array)
       },
     });
   });
@@ -210,7 +211,7 @@ describe("PATCH /users/:username", () => {
         firstName: "New",
         lastName: "U1L",
         email: "user1@user.com",
-        isAdmin: false,
+        isAdmin: false
       },
     });
   });
