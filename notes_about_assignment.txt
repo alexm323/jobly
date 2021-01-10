@@ -252,3 +252,9 @@ need to update one of the routes on companies and need to test the jobs routes t
 
 WRITING TESTS IS KILLING ME SLOWLY. anyways, tomorrow continue with the jobs tests and then finish the section 5 and turn this fucking monster assignmnent in and move on to react and read the Dada code base. 
 
+awesome finished the testing on the jobs routes
+
+time to move on to the final feature and once that is done I have to go over every line to fix my documentation
+
+Step 5: Job Applications 
+

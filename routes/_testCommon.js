@@ -62,6 +62,11 @@ async function commonBeforeAll() {
     password: "password3",
     isAdmin: false,
   });
+  await db.query(`
+    INSERT INTO jobs(id,title, salary, equity, company_handle)
+    VALUES (1,'j1',100,0,'c1'),
+    (2,'j2',200,0.02,'c2'),
+    (3,'j3',300,0.03,'c3')`);
 
 
 
