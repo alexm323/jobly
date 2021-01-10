@@ -131,7 +131,16 @@ class Company {
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+    // need to add in the job information for whatever company we are looking at so we can make a query and grab it by company_handle off of the jobs table since they have that relationship 
+    const jobsRes = await db.query(
+      `SELECT id, title, salary, equity
+       FROM jobs
+       WHERE company_handle = $1
+       ORDER BY id`,
+      [handle],
+    );
 
+    company.jobs = jobsRes.rows;
     return company;
   }
 

@@ -65,7 +65,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
  * Authorization required: none
  */
 
-router.get("/", ensureAdmin, async function (req, res, next) {
+router.get("/", async function (req, res, next) {
     try {
         // checking if the there is any filtering happening from the query string
         const queryKeysArray = Object.keys(req.query)
@@ -99,7 +99,7 @@ router.get("/", ensureAdmin, async function (req, res, next) {
 //  * Authorization required: none
 //  */
 
-router.get("/:id", ensureAdmin, async function (req, res, next) {
+router.get("/:id", async function (req, res, next) {
     try {
         const job = await Job.get(req.params.id);
         return res.json({ job });

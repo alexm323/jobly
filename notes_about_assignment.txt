@@ -249,3 +249,6 @@ ok added the schema and finally finished out the job functionality with some tes
 
 need to update one of the routes on companies and need to test the jobs routes to make sure they are working 
 
+
+WRITING TESTS IS KILLING ME SLOWLY. anyways, tomorrow continue with the jobs tests and then finish the section 5 and turn this fucking monster assignmnent in and move on to react and read the Dada code base. 
+

@@ -12,7 +12,8 @@
             "minimum": 0
         },
         "equity": {
-            "type": "integer"
+            "type": "string",
+            "pattern": "0|(0?\\.[0-9]+)"
         },
         "companyHandle": {
             "type": "string",
