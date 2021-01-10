@@ -119,4 +119,16 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
 });
 
 
+router.post("/:username/jobs/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+  try {
+    const { username, id } = req.params;
+
+    const appliedJobs = await User.apply(username, id);
+    console.log(appliedJobs)
+    return res.json({ applied: appliedJobs.jobId })
+  } catch (err) {
+    next(err)
+  }
+});
+
 module.exports = router;

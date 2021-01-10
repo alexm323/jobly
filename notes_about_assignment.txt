@@ -258,3 +258,6 @@ time to move on to the final feature and once that is done I have to go over eve
 
 Step 5: Job Applications 
 
+
+1.Need to add a method the the User model to allow a user to apply or for an admin to apply on their behalf 
+2.Add a POST/users/:username/jobs/:id route that allows a user to apply for a job 
