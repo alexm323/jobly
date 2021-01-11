@@ -6,7 +6,7 @@ const jsonschema = require("jsonschema");
 const express = require("express");
 
 const { BadRequestError } = require("../expressError");
-const { ensureLoggedIn } = require("../middleware/auth");
+// const { ensureLoggedIn } = require("../middleware/auth");
 const { ensureAdmin } = require("../middleware/auth");
 const Job = require("../models/job");
 const jobNewSchema = require("../schemas/jobNew.json");
@@ -16,29 +16,9 @@ const jobUpdateSchema = require("../schemas/jobUpdate.json");
 const router = new express.Router();
 
 
-/** POST / { company } =>  { company }
- *
- * company should be { handle, name, description, numEmployees, logoUrl }
- *
- * Returns { handle, name, description, numEmployees, logoUrl }
- *
- * Authorization required: login
- */
-
-// router.post("/", async function (req, res, next) {
-//     try {
-//         const validator = jsonschema.validate(req.body, companyNewSchema);
-//         if (!validator.valid) {
-//             const errs = validator.errors.map(e => e.stack);
-//             throw new BadRequestError(errs);
-//         }
-
-//         const company = await Company.create(req.body);
-//         return res.status(201).json({ company });
-//     } catch (err) {
-//         return next(err);
-//     }
-// });
+// POST jobs/ only an admin should be able to post a new job
+// accepts {title,salary,equity,companyHandle}
+// returns job:{id,title,salary,equity,companyHandle}
 router.post("/", ensureAdmin, async function (req, res, next) {
     try {
         const validator = jsonschema.validate(req.body, jobNewSchema);
@@ -55,13 +35,9 @@ router.post("/", ensureAdmin, async function (req, res, next) {
 
 
 /** GET /  =>
- *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
+ *   { jobs: [ { id, title, salary, equity, companyHandle }, ...] }
  *
- * Can filter on provided search filters:
- * - minEmployees
- * - maxEmployees
- * - nameLike (will find case-insensitive, partial matches)
- *
+ * accepts filtering by : minSalary,hasEquity,title
  * Authorization required: none
  */
 
@@ -69,7 +45,7 @@ router.get("/", async function (req, res, next) {
     try {
         // checking if the there is any filtering happening from the query string
         const queryKeysArray = Object.keys(req.query)
-        // if there is no query values then we will just return a list of all of the companies
+        // if there is no query values then we will just return a list of all of the jobs
         if (queryKeysArray.length === 0) {
             const jobs = await Job.findAll();
             return res.json({ jobs });
@@ -91,10 +67,10 @@ router.get("/", async function (req, res, next) {
     }
 });
 
-// /** GET /[handle]  =>  { company }
+// /** GET /[id]  =>  { job }
 //  *
-//  *  Company is { handle, name, description, numEmployees, logoUrl, jobs }
-//  *   where jobs is [{ id, title, salary, equity }, ...]
+//  *  Job is { id, title, salary, equity, companyHandle }
+//  *   
 //  *
 //  * Authorization required: none
 //  */
@@ -108,15 +84,15 @@ router.get("/:id", async function (req, res, next) {
     }
 });
 
-// /** PATCH /[handle] { fld1, fld2, ... } => { company }
+// /** PATCH /[id] { fld1, fld2, ... } => { job }
 //  *
-//  * Patches company data.
+//  * Patches job data.
 //  *
-//  * fields can be: { name, description, numEmployees, logo_url }
+//  * fields can be: { title, salary, equity }
 //  *
-//  * Returns { handle, name, description, numEmployees, logo_url }
+//  * Returns { id, title, salary, equity, companyHandle }
 //  *
-//  * Authorization required: login
+//  * Authorization required: admin login
 //  */
 
 router.patch("/:id", ensureAdmin, async function (req, res, next) {
@@ -134,9 +110,9 @@ router.patch("/:id", ensureAdmin, async function (req, res, next) {
     }
 });
 
-// /** DELETE /[handle]  =>  { deleted: handle }
+// /** DELETE /[id]  =>  { deleted: id }
 //  *
-//  * Authorization: login
+//  * Authorization: admin login
 //  */
 
 router.delete("/:id", ensureAdmin, async function (req, res, next) {

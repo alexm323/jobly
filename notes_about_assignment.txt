@@ -232,9 +232,7 @@ const queries = await db.query(`SELECT * FROM jobs;`)
 
 or maybe it is just my findAll function that is broken 
 
-PITFALLS TO AVOID, I FINALLY GOT IT WORKING BUT MY GOD I WAS DESCENDING INTO MADNESS TRYING TO FIGURE IT OUT AND I WAS IN THE WRONG DAMN FILE THE WHOLE FUCKING TIME 
-
-FUUUUUUCK
+im dumb i was working out of the right file name in the wrong folder section
 
 
 ok got the find all tests working , a lot easier once you actually have your data in the right files it turns out -_-
@@ -250,7 +248,7 @@ ok added the schema and finally finished out the job functionality with some tes
 need to update one of the routes on companies and need to test the jobs routes to make sure they are working 
 
 
-WRITING TESTS IS KILLING ME SLOWLY. anyways, tomorrow continue with the jobs tests and then finish the section 5 and turn this fucking monster assignmnent in and move on to react and read the Dada code base. 
+WRITING TESTS IS FUN. anyways, tomorrow continue with the jobs tests and then finish the section 5 and turn this fun assignmnent in and move on to react and read the Dada code base. 
 
 awesome finished the testing on the jobs routes
 
@@ -263,3 +261,5 @@ Step 5: Job Applications
 2.Add a POST/users/:username/jobs/:id route that allows a user to apply for a job 
 
 added in apply method in the model , wrote tests for the method and updated the routes, now just need to fix and update the tests that broke 
+
+finished the code and updated the testing, also added in more documenation to make it easier to understand

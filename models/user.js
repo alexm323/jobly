@@ -36,7 +36,7 @@ class User {
     );
 
     const user = result.rows[0];
-
+    //  if we have a user we want to make sure that their username and password are valid
     if (user) {
       // compare hashed password to a new hash from password
       const isValid = await bcrypt.compare(password, user.password);
@@ -58,19 +58,20 @@ class User {
 
   static async register(
     { username, password, firstName, lastName, email, isAdmin }) {
+    // check to make sure that the username is not already taken
     const duplicateCheck = await db.query(
       `SELECT username
            FROM users
            WHERE username = $1`,
       [username],
     );
-
+    // if the user exists then we can throw an error
     if (duplicateCheck.rows[0]) {
       throw new BadRequestError(`Duplicate username: ${username}`);
     }
-
+    // hash the users password , this is what we will store
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
-
+    // add in the user once all their data has been confirmed
     const result = await db.query(
       `INSERT INTO users
            (username,
@@ -118,7 +119,7 @@ class User {
   /** Given a username, return data about user.
    *
    * Returns { username, first_name, last_name, is_admin, jobs }
-   *   where jobs is { id, title, company_handle, company_name, state }
+   *   where jobs is { id, title, company_handle,salary,equity}
    *
    * Throws NotFoundError if user not found.
    **/
@@ -213,7 +214,10 @@ class User {
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
 
+  // method for a user to be able to apply to jobs. requires a username and job id
   static async apply(username, jobId) {
+
+    // check to make sure the job exists
     const jobCheck = await db.query(
       `SELECT id
        FROM jobs
@@ -221,7 +225,7 @@ class User {
     const job = jobCheck.rows[0];
 
     if (!job) throw new NotFoundError(`No job: ${jobId}`);
-
+    // check to make sure the username is valid
     const usernameCheck = await db.query(
       `SELECT username
        FROM users
@@ -229,7 +233,7 @@ class User {
     const user = usernameCheck.rows[0];
     if (!user) throw new NotFoundError(`No username: ${username}`);
 
-
+    // check to make sure that the job has not already been applied to 
     const duplicateCheck = await db.query(
       `SELECT job_id AS "jobId",username
            FROM applications
@@ -241,7 +245,7 @@ class User {
     if (duplicateCheck.rows[0]) {
       throw new BadRequestError(`User: ${username} has already applied to job with id: ${jobId}`);
     }
-
+    // if all is well insert it into the database
     let result = await db.query(
       `INSERT INTO applications
     (username,job_id)

@@ -30,25 +30,22 @@ class Job {
                 companyHandle
             ]);
         const job = result.rows[0];
-        // console.log('checking the creation part of the testing should log the job below this line')
-        // console.log(job)
 
         return job;
     }
 
-    /** Find all companies.
+    /** Find all jobs.
      *
-     * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+     * Returns [{ id, title, salary, equity, companyHandle }, ...]
      * */
     /** 
-   * Filter method for getting a company with a specific name, minimum number of employees or a maximum number of employees
-   * we can add in a parameter to findAll that acceepts an object with the search terms as keys and the query params as values 
-   * then we can make some if statements to account for each kind of filter they can do 
+   * We add in a filter method to be able to search for 3 stackable filters, search by the following hasEquity(true or false), minSalary(the minimum salary for a job), and title(the job title)
+   * all of these can be used seperately or in conjuction
    */
     // Add in an optional parameter for search filters that accepts an object of the 3 potential search filters
     static async findAll(searchFilters = {}) {
 
-        // create a query variable so we can add a search filter to the end of it as needed, we remove the order by name since we will be adding to the end of the query string as filters are added
+        // create a base query variable so that we can build our SQL query later with additional parameters
         let query = `SELECT id,title,salary,equity,company_handle AS "companyHandle" FROM jobs`
         // empty array to track the expressions we will be querying, will be the WHERE clause expressions
         let filterQueries = []
@@ -58,37 +55,44 @@ class Job {
         const { title, minSalary, hasEquity } = searchFilters;
         // add each type of filter to the arrays so we know what we need to add to our WHERE clause 
         // if there is a minEmployees in the query string we will add it the the filterQueries array to make our sql late
-        // if the maxEmployees is given a value in the query string
+        // filter to see if there is equity, equity would count as anything above 0 
         if (hasEquity) {
+            // push the value to where we keep the where clauses 
             queryValues.push(0)
+            // this is where we build a part of our overall query to add to the base query
             filterQueries.push(`equity > $${queryValues.length}`)
 
         }
+        // check to see if there is a minSalary req
         if (minSalary !== undefined) {
             // we want that number as a value pushed into our queryValues array 
             queryValues.push(minSalary);
             // our WHERE clause
             filterQueries.push(`salary >= $${queryValues.length}`)
         }
+        // adjust the query to filter by title 
         if (title) {
             // Using %title% here allows us to use sql to find patterns that match this title from our database 
             queryValues.push(`%${title}%`)
             // now we just add in the sql statement before we add it all together 
             filterQueries.push(`title ILIKE $${queryValues.length}`)
         }
-        // now with our if statements populating the filter query we can build it and we should end up with 0 -  3 variables ($1,$2,$3) depending on how many filters the user would like to apply 
-        // if we have at least 1 query active 
+        // now with our if statements populating the filter query we can build it and we should end up with 0 -  3 variables ($1,$2,$3) depending on how many filters the user would like to apply \
+
+        // if we have at least 1 query active then we want to adjust our query and seperate them with WHERE and AND to combine the queries
         if (filterQueries.length > 0) {
             query = query + ` WHERE ` + filterQueries.join(' AND ');
 
         }
-        // order the query results by name of company before we return them, could also add in a param to order this in any way that we want 
+        // order the query results by title of the job before we return them, could also add in a param to order this in any way that we want 
         query = query + " ORDER BY title";
         const jobRes = await db.query(query, queryValues)
-        // I THINK I WOULD BE SERVED WELL TO TRY TO GET THIS WORKING AS A STANDALONE HELPER FUNCTION CALLED SQLQUERYBUILDER OR SOMETHING, FOR NOW JUST FINISH BUILDING IT OUT  
         return jobRes.rows;
     }
+
+    // get a specific job buy the id number
     static async get(id) {
+        // standard job response by the id as a WHERE clause 
         const jobRes = await db.query(
             `SELECT id,
                       title,
@@ -98,19 +102,21 @@ class Job {
                FROM jobs
                WHERE id = $1`,
             [id]);
-
+        // we want to return the singular job we should be getting back
         const job = jobRes.rows[0];
-
+        // if there is nothing in job then the job was not found for that particular id
         if (!job) throw new NotFoundError(`No job with id: ${id}`);
-
+        // otherwise we just return job
         return job;
     }
 
-
+    // our update here like the company update will be capable of updating in part or in whole
     static async update(id, data) {
+        // we will be using our helper function to help build our specific update query     
         const { setCols, values } = sqlForPartialUpdate(
             data,
             {});
+
         const idVarIdx = "$" + (values.length + 1);
 
         const querySql = `UPDATE jobs 
@@ -128,7 +134,7 @@ class Job {
 
         return job;
     }
-
+    // adding the ability to remove a job specifically by id 
     static async remove(id) {
         const result = await db.query(
             `DELETE
@@ -137,7 +143,7 @@ class Job {
                RETURNING title`,
             [id]);
         const job = result.rows[0];
-
+        // dont find the job and we throw an error
         if (!job) throw new NotFoundError(`No job with the id of: ${id}`);
     }
 
