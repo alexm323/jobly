@@ -263,3 +263,23 @@ Step 5: Job Applications
 added in apply method in the model , wrote tests for the method and updated the routes, now just need to fix and update the tests that broke 
 
 finished the code and updated the testing, also added in more documenation to make it easier to understand
+
+
+dev consultancies - main 
+
+case studies 
+
+admin stuff, resizing images, adding and removing content , Content Manager System
+web flow, monthly subscription, 
+great for developers and people managing 
+
+word press 
+SEO, once you build out a bunch of pages , if he has 10-15 properties, you want to have a good search result for los angeles realtor 
+googles web master tools are updated automatically, update the site map and do this api call to web master tool 
+
+most content tools this is handled automatically 
+
+react testing framework 
+
+
+
